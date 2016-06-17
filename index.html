@@ -1,0 +1,96 @@
+<html>
+<head>
+	<style>
+	.game{
+		width:1300px;
+		float:left;
+		margin-top: 4px;
+	}
+	.round{
+		height:10px;
+		width:10px;
+		margin:1 1 1 1;
+		
+		color:white;
+		float:left;
+		text-align: middle;
+	}
+
+	.roundsContainer {
+		width:1200px;
+		float:left;
+		margin-top: 4px;
+	}
+
+	.win{
+		height:25px;
+		width:25px;
+		margin:1 1 1 1;
+		float:right;
+	}
+	</style>
+	<script src="d3.min.js"></script>
+</head>
+<body>
+</body>
+<script>
+
+	///visulaizations!
+	function viz(data){
+		var b = d3.selectAll("body"),
+			games = b.selectAll("#g" + game).data(data);
+
+		games.enter()
+			.append("div")
+			.attr("id","g" +game)
+			.classed("game",true)
+			.append("div")
+			.classed("roundsContainer",true)
+			.data(data);
+
+		var roundsC = games.selectAll(".roundsContainer");
+		var rounds = roundsC.selectAll(".round").data(function(d){return d.rounds;});
+
+		rounds.enter()
+			.append("div")
+			.style("background-color",function(d){return d.win === 0 ? "red" : "blue";})
+			.classed("round",true)
+			.text(function(d){return d.wars ? "W" : "";});
+
+		var win = games.selectAll(".win").data(function(d){return [d];});
+
+		win.enter()
+			.append("div")
+			.classed("win",true)
+			.style("height",function(d){return (Math.round(d.rounds.length/100 + .5) * 12) + "px";})
+			.style("background-color",function(d){return d.win === 0 ? "red" : "blue";});
+
+	}
+
+	//run game
+	var gameWorker = new Worker("worker.js");
+
+	gameWorker.onmessage = function(e){
+		console.log("new Data",e.data);
+		game++;
+		//gameD.push(e.data);
+		viz([e.data]);
+	};
+
+	var warData = {games:[]},
+		game = 0,
+		gameD = [];
+	for (var i = 0; i < 100; i++){
+		//warData.games.push(play(2));
+		//gameD.push(play(2));
+		gameWorker.postMessage(2);
+		//console.log(gameD);
+		//viz(gameD);
+	}
+
+
+
+
+	//console.log(warData);
+</script>
+</html>
